@@ -1,0 +1,54 @@
+name: ML CI/CD Pipeline
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  train-model:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Train Model
+        run: python train.py
+      
+      - name: Evaluate Model
+        run: python evaluate.py
+      
+      - name: Upload Model Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: trained-model
+          path: models/
+
+  deploy-model:
+    runs-on: ubuntu-latest
+    needs: train-model
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Download Model Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: trained-model
+          path: models/
+      
+      - name: Deploy Model
+        run: |
+          # Simulate deployment (replace with actual deployment script)
+          echo "Deploying model..."
